@@ -1,5 +1,3 @@
--- nvim/modules/plugins/mappings helpers
-
 local main = {}
 local str = require("src.warm.str")
 local match = require("src.warm.spr").match
@@ -47,7 +45,7 @@ function main.home_key()
   local line_nr, cursor_pos = table.unpack(vim.api.nvim_win_get_cursor(0))
   local line = vim.api.nvim_buf_get_lines(0, line_nr - 1, line_nr, false)[1]
 
-  local content_pos = (string.find(line, "%S") or 1) - 1 or 0
+  local content_pos = (string.find(line, "%S") or 1) - 1
   -- Check if cursor is at the beginning of the line content
   if cursor_pos == content_pos then
     vim.api.nvim_win_set_cursor(0, { line_nr, 0 })
@@ -348,16 +346,7 @@ function main.simple_input_popup(opts)
     height = opts.height,
     title = title_value,
     style = "minimal",
-    border = {
-      { "╭", "AccHiYogurtF" },
-      { "─", "AccHiYogurtF" },
-      { "╮", "AccHiYogurtF" },
-      { "│", "AccHiYogurtF" },
-      { "╯", "AccHiYogurtF" },
-      { "─", "AccHiYogurtF" },
-      { "╰", "AccHiYogurtF" },
-      { "│", "AccHiYogurtF" },
-    },
+    border = "rounded",
   })
   vim.cmd("normal A")
   vim.cmd("startinsert")
@@ -382,7 +371,7 @@ function main.pnvim_command(command)
   end
 end
 
----Same as pressing 'y' or 'yy', copy the line or selection to the " register
+---Same as pressing 'y' or 'yy', copy the line or selection to the `+` register
 function main.copy()
   if main.is_visual() then
     main.press_esc_key() -- Back to normal mode
@@ -418,8 +407,8 @@ function main.save()
     )
     return
   elseif
-    vim.bo[vim.fn.bufnr("%")].buftype:find("term") ~= nil
-    and vim.bo[vim.fn.bufnr("%")].filetype == "terminal"
+      vim.bo[vim.fn.bufnr("%")].buftype:find("term") ~= nil
+      and vim.bo[vim.fn.bufnr("%")].filetype == "terminal"
   then
     vim.notify(
       "Buffer is a terminal: has no associated file, to save use v mode and run :'<,'>w <file_name>",
@@ -428,7 +417,7 @@ function main.save()
     )
     return
   end
-  vim.api.nvim_command("w!") -- save
+  vim.api.nvim_command("w!")         -- save
   vim.api.nvim_command("stopinsert") -- back to normal mode
   main.press_esc_key()
 end
@@ -469,13 +458,13 @@ function main.resize_win_interact()
   while true do
     local ok, ch = pcall(vim.fn.getchar) -- Will block exec until we got something
     if
-      not ok
-      or type(ch) ~= "number"
-      -- Upper or lower case h i j k l
-      or not ((ch > 71 and ch < 77) or (ch > 103 and ch < 109))
-      -- But i does not do the same
-      or ch == 73
-      or ch == 105
+        not ok
+        or type(ch) ~= "number"
+        -- Upper or lower case h i j k l
+        or not ((ch > 71 and ch < 77) or (ch > 103 and ch < 109))
+        -- But i does not do the same
+        or ch == 73
+        or ch == 105
     then
       vim.notify("Interactive window resizing done", vim.log.levels.INFO, {})
       break
@@ -539,11 +528,11 @@ function main.redo()
   vim.api.nvim_command("redo")
 end
 
-function main.toggle_vterm() require("src.nvstp.term.api").toggle("vertical", true) end
+function main.toggle_vterm() require("src.nvstp.term").toggle("vertical", true) end
 
-function main.toggle_hterm() require("src.nvstp.term.api").toggle("horizontal", true) end
+function main.toggle_hterm() require("src.nvstp.term").toggle("horizontal", true) end
 
-function main.toggle_fterm() require("src.nvstp.term.api").toggle("floating", true) end
+function main.toggle_fterm() require("src.nvstp.term").toggle("floating", true) end
 
 function main.tab_new() main.pnvim_command("tabnew") end
 
@@ -635,28 +624,32 @@ function main.scroll_down(lines)
 end
 
 -- Function to get the appropriate indent string (spaces or tabs)
-function main.get_indent_string()
+---@param count integer?
+---@return string
+function main.get_indent_string(count)
+  count = count or 1
   if vim.o.expandtab == true then
-    return string.rep(" ", vim.o.tabstop)
+    return string.rep(" ", vim.o.tabstop * count)
   else
-    return "\t"
+    return string.rep("\t", count)
   end
 end
 
 -- Function to add indentation
 function main.add_indent()
   if not main.is_buf_modifiable_notify() then return end
+  local count = vim.v.count1
+  local indent_str = main.get_indent_string(count)
   -- Check if Neovim is in visual mode
   if not main.is_visual() then
     -- If not in visual mode, operate on the current line
     local current_line = vim.api.nvim_get_current_line()
-    local indent_str = main.get_indent_string()
     local new_line = indent_str .. current_line -- Add the appropriate indentation
     vim.api.nvim_set_current_line(new_line)
   else
     -- If in visual mode, operate on the selected range
     main.press_esc_key(vim.fn.mode()) -- Back to normal mode
-    vim.schedule(function() -- Run later to read marks
+    vim.schedule(function()           -- Run later to read marks
       local line_start = vim.api.nvim_buf_get_mark(0, "<")[1]
       local line_end = vim.api.nvim_buf_get_mark(0, ">")[1]
       if line_start == line_end then line_start = line_start - 1 end
@@ -665,7 +658,6 @@ function main.add_indent()
       local lines = vim.api.nvim_buf_get_lines(0, line_start - 1, line_end, false)
       for i, line in pairs(lines) do
         local ln = line_start + (i - 1)
-        local indent_str = main.get_indent_string()
         local new_line = indent_str .. line -- Add the appropriate indentation
         vim.api.nvim_buf_set_lines(0, ln - 1, ln, false, { new_line })
       end
@@ -676,17 +668,18 @@ end
 -- Function to remove indentation
 function main.remove_indent()
   if not main.is_buf_modifiable_notify() then return end
+  local count = vim.v.count1
+  local indent_str = main.get_indent_string(count)
   -- Check if Neovim is in visual mode
   if not main.is_visual() then
     -- If not in visual mode, operate on the current line
     local current_line = vim.api.nvim_get_current_line()
-    local indent_str = main.get_indent_string()
     local new_line = current_line:gsub("^" .. indent_str, "") -- Remove leading whitespace or tabs
     vim.api.nvim_set_current_line(new_line)
   else
     -- If in visual mode, operate on the selected range
     main.press_esc_key(vim.fn.mode()) -- Back to normal mode
-    vim.schedule(function() -- Run later to read marks
+    vim.schedule(function()           -- Run later to read marks
       local line_start = vim.api.nvim_buf_get_mark(0, "<")[1]
       local line_end = vim.api.nvim_buf_get_mark(0, ">")[1]
       if line_start == line_end then line_start = line_start - 1 end
@@ -695,7 +688,6 @@ function main.remove_indent()
       local lines = vim.api.nvim_buf_get_lines(0, line_start - 1, line_end, false)
       for i, line in pairs(lines) do
         local ln = line_start + (i - 1)
-        local indent_str = main.get_indent_string()
         local new_line = line:gsub("^" .. indent_str, "") -- Remove leading whitespace or tabs
         vim.api.nvim_buf_set_lines(0, ln - 1, ln, false, { new_line })
       end
@@ -718,7 +710,7 @@ function main.close_buf()
   elseif main.is_buf_named() and main.is_buf_modified() then
     -- File has a name, prompt to save before quitting
     local choice =
-      vim.fn.confirm("Save changes before closing buffer?", "&Yes\n&No\n&Cancel", 3)
+        vim.fn.confirm("Save changes before closing buffer?", "&Yes\n&No\n&Cancel", 3)
 
     if choice == 1 then vim.cmd("w!") end
     if choice == 2 then do_close_buffer() end
@@ -737,14 +729,6 @@ function main.toggle_file_tree()
   else
     vim.api.nvim_command("Neotree focus")
   end
-end
-
-function main.toggle_inlayhints()
-  if vim.lsp.inlay_hint == nil then
-    vim.notify("Inlay hints are not available", vim.log.levels.ERROR, {})
-    return
-  end
-  vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = 0 }), { bufnr = 0 })
 end
 
 -- Duplicate current visual selection

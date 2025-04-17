@@ -1,6 +1,3 @@
--- add your own globals in
--- ~/.config/nvim/custom/globals/init.lua
-
 local __globals__ = require("config.data.globals")
 
 ---@class NvimGlobalsConfig

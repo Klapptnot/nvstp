@@ -77,7 +77,7 @@ return {
     meth = "textDocument/hover",
     mapp = "K",
     mode = { "n" },
-    exec = vim.lsp.buf.hover,
+    exec = function() vim.lsp.buf.hover({ border = "rounded" }) end,
     desc = "[LSP][W] Show hover documentation",
     opts = __opts__,
   },
@@ -111,14 +111,6 @@ return {
     mode = { "n" },
     exec = vim.lsp.buf.clear_references,
     desc = "[LSP][S] Clear reference highlights",
-    opts = __opts__,
-  },
-  {
-    meth = "workspace/executeCommand",
-    mapp = "<leader>ex",
-    mode = { "n" },
-    exec = vim.lsp.buf.execute_command,
-    desc = "[LSP][S] Execute command",
     opts = __opts__,
   },
   {
@@ -173,7 +165,9 @@ return {
     meth = "textDocument/publishDiagnostics",
     mapp = "[d",
     mode = { "n" },
-    exec = function() vim.diagnostic.goto_prev() end,
+    exec = function()
+      vim.diagnostic.jump({ count = -vim.v.count1, wrap = true })
+    end,
     desc = "[LSP][S] Go to previous diagnostic",
     opts = __opts__,
   },
@@ -181,8 +175,18 @@ return {
     meth = "textDocument/publishDiagnostics",
     mapp = "]d",
     mode = { "n" },
-    exec = function() vim.diagnostic.goto_next() end,
+    exec = function()
+      vim.diagnostic.jump({ count = vim.v.count1, wrap = true })
+    end,
     desc = "[LSP][S] Go to next diagnostic",
+    opts = __opts__,
+  },
+  {
+    meth = "textDocument/publishDiagnostics",
+    mapp = "<leader>df",
+    mode = { "n" },
+    exec = vim.diagnostic.setqflist,
+    desc = "[LSP][W] Show all diagnostics",
     opts = __opts__,
   },
   {

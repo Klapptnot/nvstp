@@ -66,7 +66,11 @@ function blocks.file(bar, v)
 
   bar(
     main.colors.file.name,
-    icon .. " " .. file .. " (buf: %n)%{getbufvar(bufnr('%'),'&mod')?' ':''}"
+    "%{getbufvar(bufnr('%'),'&readonly') ? ' ' : ''}"
+      .. icon
+      .. " "
+      .. file
+      .. " (buf: %n)%{getbufvar(bufnr('%'),'&mod')?' ':''}"
   )
 end
 
@@ -112,9 +116,7 @@ function blocks.lsp_diag(bar, v)
 end
 
 function blocks.git_branch(bar, v)
-  if v.igit ~= nil then
-    bar(main.colors.git.branch, " " .. v.igit)
-  end
+  if v.igit ~= nil then bar(main.colors.git.branch, " " .. v.igit) end
 end
 
 function blocks.git_stat(bar, v)
@@ -146,11 +148,13 @@ function main.run()
   if #main.bar < 1 then return "" end
   local env = {}
 
-  env.sbuf = vim.api.nvim_get_current_buf()
+  env.sbuf = vim.api.nvim_win_get_buf(vim.g.statusline_winid)
   env.bfft = vim.bo[env.sbuf].filetype
   env.mode = vim.api.nvim_get_mode().mode
   if string.has(main.ignore, env.bfft) then
     return vim_modes[env.mode][1] .. " in " .. env.bfft .. "%<%=%c:%l/%L [%b][0x%B]"
+  elseif vim.api.nvim_get_current_win() ~= vim.g.statusline_winid then
+    return "  INACTIVE in " .. env.bfft .. "%<%=%c:%l/%L [%b][0x%B]"
   end
 
   env.name = vim.fn.bufname(env.sbuf)
@@ -196,7 +200,8 @@ function main.run()
         if env.skip then
           env.skip = false
         else
-          line = line .. color_and_unions(last_hg, it, fun:gsub("^(.)", string.upper) .. tostring(h + i))
+          line = line
+            .. color_and_unions(last_hg, it, fun:gsub("^(.)", string.upper) .. tostring(h + i))
           last_hg = it
         end
       end

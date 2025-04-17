@@ -28,7 +28,7 @@ return {
   require("config.data.for.null_ls"),
   require("config.data.for.masonlsp"),
   require("config.data.for.lspconfig"),
-  { "mg979/vim-visual-multi", event = { "UIEnter" } },
+  -- { "mg979/vim-visual-multi", event = { "UIEnter" } },
   -- { "folke/which-key.nvim", event = "VeryLazy", },
 
   {
@@ -58,7 +58,7 @@ return {
     name = "notify",
     lazy = false,
     init = function()
-      if LESS_COMPLEX_THINGS == false then
+      if NVSTP.less_complex_things == false then
         -- Just to ignore notification
         require("notify").setup({ background_colour = "#000000" })
         vim.notify = require("notify")

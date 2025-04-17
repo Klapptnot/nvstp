@@ -1,6 +1,3 @@
--- add your own options in
--- ~/.config/nvim/custom/options/init.lua
-
 local __options__ = require("config.data.options")
 
 ---@class NvimOptionsConfig

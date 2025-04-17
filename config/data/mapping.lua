@@ -3,18 +3,12 @@ local api = require("src.nvstp.api")
 local __def_opts_lua__ = { expr = false }
 local __def_opts_vim__ = { silent = true }
 
----@alias NvstpKeyMapp {mapp:string, mode:string[], exec:fun()|string, desc:string?, opts:table<string, any>?}
+---@alias NvstpKeyMapp {mapp:string, mode:string[], exec:fun()|string, desc:string?,
+---opts:vim.api.keyset.keymap?}
 
 ---@type NvstpKeyMapp[]
 return {
   -- ^ Lua functions
-  {
-    mapp = "<C-s>",
-    mode = { "n", "v", "i" },
-    exec = api.save,
-    desc = "Save current file",
-    opts = __def_opts_lua__,
-  },
   {
     mapp = "<C-s>",
     mode = { "n", "v", "i" },
@@ -72,23 +66,7 @@ return {
   },
 
   {
-    mapp = "<C-b>",
-    mode = { "n", "v" },
-    exec = api.toggle_file_tree,
-    desc = "Toggle/focus files tree",
-    opts = __def_opts_lua__,
-  },
-
-  {
-    mapp = "<leader>ih",
-    mode = { "n", "v" },
-    exec = api.toggle_inlayhints,
-    desc = "Toggle LSP inlay hints",
-    opts = __def_opts_lua__,
-  },
-
-  {
-    mapp = "w",
+    mapp = "W",
     mode = { "n" },
     exec = api.win_jump,
     desc = "Easy jump to another window",
@@ -96,7 +74,7 @@ return {
   },
 
   {
-    mapp = "W",
+    mapp = "E",
     mode = { "n" },
     exec = api.win_close,
     desc = "Easy close picked window",
@@ -128,6 +106,14 @@ return {
   },
 
   {
+    mapp = "<leader>fr",
+    mode = { "v", "n" },
+    exec = api.find_and_open_refs,
+    desc = "Open a path ref from buffer",
+    opts = __def_opts_lua__,
+  },
+
+  {
     mapp = "<A-Up>",
     mode = { "n", "i" },
     exec = api.move_line_up,
@@ -140,38 +126,6 @@ return {
     mode = { "n", "i" },
     exec = api.move_line_down,
     desc = "Move line down",
-    opts = __def_opts_lua__,
-  },
-
-  {
-    mapp = "<C-d>",
-    mode = { "n", "i" },
-    exec = api.duplicate_line,
-    desc = "Duplicate line",
-    opts = __def_opts_lua__,
-  },
-
-  {
-    mapp = "<C-d>",
-    mode = { "v" },
-    exec = api.duplicate_selection,
-    desc = "Duplicate selection",
-    opts = __def_opts_lua__,
-  },
-
-  {
-    mapp = "F",
-    mode = { "v" },
-    exec = api.open_visual_selection_ref,
-    desc = "Open file ref from visual selection",
-    opts = __def_opts_lua__,
-  },
-
-  {
-    mapp = "<leader>fr",
-    mode = { "v", "n" },
-    exec = api.find_and_open_refs,
-    desc = "Open a path ref from buffer",
     opts = __def_opts_lua__,
   },
 
@@ -217,7 +171,7 @@ return {
 
   {
     mapp = "<M-1>",
-    mode = { "n", "v", "t" }, -- Allow hiding term when in terminal mode
+    mode = { "n", "v", "t" },
     exec = api.toggle_hterm,
     desc = "Toggle horizontal terminal",
     opts = __def_opts_lua__,
@@ -247,24 +201,8 @@ return {
     opts = __def_opts_lua__,
   },
 
-  -- {
-  --   mapp = "<ScrollWheelUp>",
-  --   mode = { "n", "v", "t" },
-  --   exec = "<PageUp>",
-  --   desc = "Scroll up",
-  --   opts = __def_opts_vim__,
-  -- },
-  --
-  -- {
-  --   mapp = "<ScrollWheelDown>",
-  --   mode = { "n", "v", "t" },
-  --   exec = "<PageDown>",
-  --   desc = "Scroll down",
-  --   opts = __def_opts_vim__,
-  -- },
-
   {
-    mapp = "<khome>",
+    mapp = "<Home>",
     mode = { "n", "v", "i" },
     exec = api.home_key,
     desc = "Go to line home or line start",

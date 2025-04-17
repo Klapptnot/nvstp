@@ -2,7 +2,6 @@
 --- @type vim.opt
 return {
   showmode = false,
-  termguicolors = true,
   updatetime = 500,
   timeout = true,
   timeoutlen = 300,

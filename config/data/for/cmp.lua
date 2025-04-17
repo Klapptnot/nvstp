@@ -75,6 +75,7 @@ return {
       "hrsh7th/cmp-nvim-lsp",
       "hrsh7th/cmp-cmdline",
       "hrsh7th/cmp-buffer",
+      "hrsh7th/cmp-emoji",
       "hrsh7th/cmp-path",
       "hrsh7th/cmp-calc",
       "saadparwaiz1/cmp_luasnip",
@@ -89,11 +90,11 @@ return {
         completion = {
           side_padding = 0, -- flat_dark
           border = borders,
-          winhighlight = "Normal:Normal,FloatBorder:FloatBorder,CursorLine:Visual,Search:None",
+          -- winhighlight = "Normal:Normal,FloatBorder:FloatBorder,CursorLine:Visual,Search:None",
         },
         documentation = {
           border = borders,
-          winhighlight = "Normal:CMPBorder",
+          -- winhighlight = "Normal:CMPBorder",
         },
       },
       snippet = {
@@ -108,8 +109,7 @@ return {
           -- load lspkind icons
           vim_item.kind = string.format("%s %s", kind_icons[vim_item.kind], vim_item.kind)
 
-
-          --     
+          --       |
           -- stylua: ignore
           vim_item.menu = ({
             nvim_lsp = " 󰒌 ",
@@ -119,7 +119,7 @@ return {
             path     = "  ",
             calc     = " 󰃬 ",
             cmdline  = "  "
-          })[entry.source.name] or '[ANY]'
+          })[entry.source.name] or "  "
 
           return vim_item
         end,
@@ -139,6 +139,7 @@ return {
         { name = "nvim_lsp" },
         { name = "treesitter" },
         { name = "luasnip" },
+        { name = "emoji" },
         { name = "path" },
         { name = "calc" },
         {

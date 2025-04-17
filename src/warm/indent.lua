@@ -53,11 +53,11 @@ end
 function main.reduce_list(leading_counts, base)
   table.sort(leading_counts)
 
-  local max_width = leading_counts[#leading_counts]
+  -- local max_width = leading_counts[#leading_counts]
   local min_width = leading_counts[1]
 
   -- assume the smaller amount if it is the same in list
-  -- if min_width == base then return min_width end
+  if min_width == base then return min_width end
 
   local res = nil
   local residue = 0

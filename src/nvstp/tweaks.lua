@@ -1,12 +1,6 @@
----@diagnostic disable: deprecated
+local main = {}
 
-NVSTP_TWEAKS = {
-  detect_indent = false,
-  reset_cursor = false,
-  lua_functions = false,
-}
-
-local tweaks_fns = {
+main.tweaks = {
   detect_indent = function()
     local function guess_set_indent()
       local a, b, c = vim.bo.shiftwidth, vim.bo.tabstop, vim.bo.softtabstop
@@ -19,7 +13,7 @@ local tweaks_fns = {
       if a == width then return end
       vim.notify(
         string.format(
-          "Indentation size changed\n{\n  before = { shiftwidth = %d, tabstop = %d, softtabstop = %d },\n  after = %d\n}",
+          "Indentation size changed, from %d:%d:%d to %d",
           a,
           b,
           c,
@@ -39,7 +33,7 @@ local tweaks_fns = {
 
       print(
         string.format(
-          "Change from %d:%d:%d to %d",
+          "Indentation size changed, from %d:%d:%d to %d",
           vim.bo.shiftwidth,
           vim.bo.tabstop,
           vim.bo.softtabstop,
@@ -55,7 +49,6 @@ local tweaks_fns = {
       pattern = "*",
       callback = guess_set_indent,
     })
-    NVSTP_TWEAKS.detect_indent = true
   end,
   reset_cursor = function()
     -- Reset cursor style on exit
@@ -63,8 +56,6 @@ local tweaks_fns = {
       pattern = { "*" },
       command = 'set guicursor= | call chansend(v:stderr, "\\x1b[ q")',
     })
-
-    NVSTP_TWEAKS.reset_cursor = true
   end,
 
   lua_functions = function()
@@ -86,6 +77,8 @@ local tweaks_fns = {
     ---@return boolean
     string.has = function(s, str, init)
       if init == nil then init = 1 end
+      if s == nil or str == nil then return false end
+      if #s == 0 or #str == 0 then return false end
       assert(type(init) == "number", "argument #1 must be a number")
       return string.find(s, str, 1, true) ~= nil
     end
@@ -107,24 +100,13 @@ local tweaks_fns = {
     -- ```
     ---@param s string
     string.put = function(s) io.write(s) end
-    NVSTP_TWEAKS.lua_functions = true
   end,
 }
 
-local main = {}
-
----Apply tweaks to the runtime environment and functionality
-
-function main.apply(tweaks)
-  local failed = {}
-  for i, v in ipairs(tweaks) do
-    if tweaks_fns[v] ~= nil then
-      tweaks_fns[v]()
-    else
-      failed[#failed + 1] = i
-    end
+function main.apply()
+  for n, v in pairs(NVSTP.tweaks) do
+    if v == true and main.tweaks[n] ~= nil then main.tweaks[n]() end
   end
-  return failed
 end
 
 return main

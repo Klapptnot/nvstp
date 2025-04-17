@@ -146,12 +146,17 @@ end
 ---@param recurse? boolean
 ---@return table
 function main.filter(tbl, condition, recurse)
+  ---@diagnostic disable-next-line: cast-local-type
   tbl, condition, recurse = table.unpack(
     spr.parse_args(
       { "table", "function", { "nil", "boolean", def = false } },
       { tbl, condition, recurse }
     )
   )
+  ---@cast tbl table
+  ---@cast condition fun(k, v): boolean
+  ---@cast recurse boolean?
+
   local result = {}
   for k, v in pairs(tbl) do
     if type(v) == "table" and recurse then
@@ -174,12 +179,13 @@ end
 ---@param tbl table
 ---@param val any
 ---@return boolean
+---@return integer
 function main.contains(tbl, val)
   spr.validate({ "table", "some" }, { tbl, val })
-  for _, v in pairs(tbl) do
-    if v == val then return true end
+  for i, v in pairs(tbl) do
+    if v == val then return true, i end
   end
-  return false
+  return false, 0
 end
 
 ---Returns true if all items are some (not nil) or true, otherwise false.
@@ -209,9 +215,12 @@ end
 ---@param recurse? boolean
 ---@return table<boolean>
 function main.boolean(tbl, recurse)
+  ---@diagnostic disable-next-line: cast-local-type
   tbl, recurse = table.unpack(
     spr.parse_args({ "table", { "boolean", "nil", def = false } }, { tbl, recurse })
   )
+  ---@cast tbl table
+  ---@cast recurse boolean?
   local recursive = (recurse ~= nil and recurse ~= false) or false
   local result = {}
   for k, v in pairs(tbl) do

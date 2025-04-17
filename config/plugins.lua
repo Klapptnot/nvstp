@@ -1,6 +1,3 @@
--- add your own plugins in
--- ~/.config/nvim/custom/plugins/init.lua
-
 local __plugins__ = require("config.data.plugins")
 
 ---@class NvimPluginsConfig

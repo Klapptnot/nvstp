@@ -1,6 +1,3 @@
--- add your own custom mappings in
--- ~/.config/nvim/custom/mapping/init.lua
-
 local __map__ = require("config.data.mapping")
 
 ---@class NvimMappingConfig
@@ -65,11 +62,10 @@ function main:disable_mouse()
 end
 
 ---Add one keybinding to the table
----@param id string
----@param props table
+---@param props NvstpKeyMapp
 ---@return NvimMappingConfig
-function main:add(id, props)
-  if self[id] == nil then self[id] = props end
+function main:add(props)
+  self[#self + 1] = props
   return self
 end
 
@@ -81,14 +77,16 @@ function main:apply()
   for _, props in pairs(self) do
     ---@cast props NvstpKeyMapp
     if type(props.exec) == "function" then
+      ---@diagnostic disable-next-line: assign-type-mismatch
       props.opts.callback = props.exec
       props.exec = ""
     end
+    props.opts = props.opts or {}
     props.opts.desc = props.desc -- Just to not nest items
     for _, mode in ipairs(props.mode) do
-      local remove = rcall(vim.api.nvim_set_keymap, mode, props.mapp, props.exec, props.opts)
-      if not remove() then
-        print(fmt("Mapping error for '%s': %s", tostring(props.desc), remove.unwrap(true)))
+      local map_key = rcall(vim.api.nvim_set_keymap, mode, props.mapp, props.exec, props.opts)
+      if not map_key() then
+        print(fmt("Mapping error for '%s': %s", tostring(props.desc), map_key.unwrap(true)))
       end
     end
   end
